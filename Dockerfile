@@ -1,5 +1,5 @@
 # Lester — production image (Bun runtime, digest-pinned bases, non-root).
-# Build: docker build -t lester:1.0.3 .
+# Build: docker build -t lester:1.0.4 .
 
 # oven/bun:1.3.14-slim, pinned by digest (S7)
 ARG BUN_IMAGE=oven/bun:1.3.14-slim@sha256:d56a2534ffd262e92c12fd3249d3924d296d97086da773f821d7d0477435ea04
@@ -14,7 +14,16 @@ RUN bun install --frozen-lockfile
 FROM ${BUN_IMAGE} AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Explicit build inputs only (S7, hardened in v1.0.4): nothing from the build
+# context enters the image unless listed here — a stray .env, local databases,
+# docs or release artifacts cannot leak in even with no .dockerignore present.
+COPY package.json bun.lock ./
+COPY src ./src
+COPY prisma ./prisma
+COPY public ./public
+COPY scripts ./scripts
+COPY next.config.ts tsconfig.json tailwind.config.ts postcss.config.mjs eslint.config.mjs ./
+COPY LICENSE ./
 ENV NEXT_TELEMETRY_DISABLED=1 \
     DATABASE_URL=file:/tmp/build.db
 RUN bunx prisma generate \

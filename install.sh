@@ -38,6 +38,73 @@ echo "· Bun $(bun --version)"
 echo "· Installing dependencies…"
 bun install --frozen-lockfile
 
+# 2b. Repository hygiene files (v1.0.4): the release ZIP ships no dotfiles
+#     (GitHub's web uploader skips OS-hidden files), so recreate them here.
+if [ ! -f .gitignore ]; then
+  cat > .gitignore <<'EOF'
+# Lester .gitignore — env.example MUST be committed; runtime data, keys,
+# logs and release artifacts must NOT be.
+
+node_modules
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+/coverage
+/build
+
+/db/
+*.db
+*.db-wal
+*.db-shm
+/dev-data/
+
+.env
+.env.*
+
+*.pem
+*.key
+db/keys/
+
+*.log
+dev.log
+server.log
+
+*.zip
+SHA256SUMS
+SHA256SUMS.txt
+lester-offline-bundle-*.tar.gz
+
+.DS_Store
+Thumbs.db
+
+.vercel
+.pnpm-debug.log*
+EOF
+  echo "· Created .gitignore"
+fi
+if [ ! -f .dockerignore ]; then
+  cat > .dockerignore <<'EOF'
+node_modules
+.next
+.git
+staging
+dist
+db
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+*.log
+*.zip
+SHA256SUMS
+.DS_Store
+lester-offline-bundle-*.tar.gz
+EOF
+  echo "· Created .dockerignore"
+fi
+
 # 3. Database schema — real migrations, never destructive
 echo "· Preparing the database (migrations; existing data is preserved)…"
 bun run migrate

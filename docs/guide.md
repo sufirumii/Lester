@@ -14,7 +14,7 @@ references updated).
 
 **Docker (any OS):**
 ```bash
-unzip lester-v1.0.3.zip && cd lester-v1.0.3
+unzip lester-v1.0.4.zip && cd lester-v1.0.4
 docker compose up -d
 open http://localhost:8090
 ```
@@ -246,7 +246,7 @@ For air-gapped installs see §4 — everything above can be pre-carried.
 ## 1 · Single laptop (Windows / macOS / Linux)
 
 ```bash
-unzip lester-v1.0.3.zip && cd lester-v1.0.3
+unzip lester-v1.0.4.zip && cd lester-v1.0.4
 
 # Linux / macOS
 bash install.sh
@@ -278,7 +278,7 @@ With Ollama, Models → Catalog installs pull through it.
 ## 2 · On-premises server (Docker)
 
 ```bash
-cd lester-v1.0.3
+cd lester-v1.0.4
 docker compose up -d                          # Lester on http://localhost:8090
 docker compose --profile with-ollama up -d    # + Ollama sidecar (pulls qwen2.5:1.5b once)
 ```
@@ -348,7 +348,7 @@ bun run start:prod
 
 ## 4 · Air-gapped network
 
-1. **Carry the software**: `lester-v1.0.3.zip` via removable media; verify against `SHA256SUMS`
+1. **Carry the software**: `lester-v1.0.4.zip` via removable media; verify against `SHA256SUMS`
    (`sha256sum -c` / `Get-FileHash`).
 2. **Carry dependencies** (from a connected machine, inside the project):
    ```bash

@@ -5,6 +5,51 @@ All notable changes to Lester are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] — 2026-11-14
+
+GitHub web-upload reliability, round two: the root cause of the missing files
+is fixed. No functional changes — every URL, method, status code, cookie,
+header and streaming behavior is unchanged, verified by the full 65-test
+suite against the real server (including the OpenAI-SDK e2e group).
+
+### Fixed
+
+- **Why files kept going missing on upload.** GitHub's web uploader cannot
+  process paths that contain `[` or `]`. The tree contained exactly one such
+  *file* — `src/app/api/[[...route]]/route.ts` — and when the uploader
+  reached it, it failed with "Something went really wrong, and we can't
+  process that file" and silently dropped every file queued after it. Both
+  earlier uploads stopped at that exact file (the repository ended up with
+  only 50 of the delivered files after the first attempt, 51 after the
+  second). The API is now served by one plain route
+  file — `src/app/api/route.ts` — with every `/api/*` URL mapped onto it by a
+  rewrite in `next.config.ts`. The route handler still receives the original
+  request URL and rebuilds the catch-all's `params` from its path, so there
+  is no carrier parameter or header a client could inject, and
+  `src/proxy.ts` is byte-identical to v1.0.3. Same router, same URLs, same
+  behavior — verified by the full suite plus a 13-case endpoint battery
+  (404/405 shapes, auth, CSRF, security headers, HEAD, trailing-slash 308);
+  zero bracket-named paths remain (the empty leftover route directories from
+  the v1.0.2 consolidation are gone too).
+- The release ZIP no longer contains dotfiles: hidden files are skipped by a
+  plain folder drag, and `.github/` (CI, CodeQL, Dependabot) never made it
+  through a web upload anyway. `install.sh` / `install.ps1` now create
+  `.gitignore` / `.dockerignore` locally when missing, and the Dockerfile
+  switched from `COPY . .` to explicit build inputs — a stray `.env` can no
+  longer enter the image even without a `.dockerignore` present.
+
+### Changed
+
+- **88 files in the release ZIP** — comfortably under
+  GitHub's 100-file web-upload limit, with every single file visible and
+  uploadable in one drag (no dotfiles, no bracket paths). The v1.0.3 ZIP
+  carried 95. `THIRD_PARTY_LICENSES.md` is no longer generated into the
+  package (regenerate any time with `bun run licenses:report`).
+- The production image is smaller: only build inputs (source, prisma,
+  public, scripts, configs, LICENSE) are copied in.
+
+[1.0.4]: https://github.com/sufirumii/lester/releases/tag/v1.0.4
+
 ## [1.0.3] — 2026-11-14
 
 GitHub web-upload reliability and documentation-link fixes; no functional changes.

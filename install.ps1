@@ -29,6 +29,73 @@ Write-Host ". Bun $(bun --version)"
 Write-Host ". Installing dependencies..."
 bun install --frozen-lockfile
 
+# 2b. Repository hygiene files (v1.0.4): the release ZIP ships no dotfiles
+#     (GitHub's web uploader skips OS-hidden files), so recreate them here.
+if (-not (Test-Path .gitignore)) {
+  Set-Content .gitignore @'
+# Lester .gitignore — env.example MUST be committed; runtime data, keys,
+# logs and release artifacts must NOT be.
+
+node_modules
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+/coverage
+/build
+
+/db/
+*.db
+*.db-wal
+*.db-shm
+/dev-data/
+
+.env
+.env.*
+
+*.pem
+*.key
+db/keys/
+
+*.log
+dev.log
+server.log
+
+*.zip
+SHA256SUMS
+SHA256SUMS.txt
+lester-offline-bundle-*.tar.gz
+
+.DS_Store
+Thumbs.db
+
+.vercel
+.pnpm-debug.log*
+'@
+  Write-Host ". Created .gitignore"
+}
+if (-not (Test-Path .dockerignore)) {
+  Set-Content .dockerignore @'
+node_modules
+.next
+.git
+staging
+dist
+db
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+*.log
+*.zip
+SHA256SUMS
+.DS_Store
+lester-offline-bundle-*.tar.gz
+'@
+  Write-Host ". Created .dockerignore"
+}
+
 # 3. Database schema — real migrations, never destructive
 Write-Host ". Preparing the database (migrations; existing data is preserved)..."
 bun run migrate

@@ -1,10 +1,13 @@
 /**
- * Every Lester API handler in one module — served through the optional
- * catch-all route (src/app/api/[[...route]]/route.ts) with an internal router
- * keyed on method + path. v1.0.2 repository consolidation: the 29 v1.0.1
- * route files merged here unchanged (same URLs, methods, status codes, header
- * shapes, cookies, streaming and auth rules; only module paths and private
- * helper names differ).
+ * Every Lester API handler in one module — served through the single route
+ * file (src/app/api/route.ts; every /api/* URL is mapped onto it by a rewrite
+ * in next.config.ts, and the route rebuilds the catch-all params from the
+ * original request URL — see the v1.0.4 notes in route.ts and next.config.ts)
+ * with an internal router keyed on method + path. v1.0.2
+ * repository consolidation: the 29 v1.0.1
+ * route files merged here unchanged
+ * (same URLs, methods, status codes, header shapes, cookies, streaming and
+ * auth rules; only module paths and private helper names differ).
  *
  * Sections (v1.0.1 route files):
  *   1. /api/auth/login

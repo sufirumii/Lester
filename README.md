@@ -31,7 +31,7 @@ machine?". Lester is the layer between your users and the engine that provides a
 ## 60-second quick start (Docker)
 
 ```bash
-unzip lester-v1.0.3.zip && cd lester-v1.0.3
+unzip lester-v1.0.4.zip && cd lester-v1.0.4
 docker compose up -d
 # open http://localhost:8090
 ```
@@ -161,7 +161,7 @@ Details, role matrix and known gaps: [docs/security-model.md](docs/security-mode
 | `bun run license:issue -- --key <vendor.pem> --node <id>` | Issue a team license (vendor key only) |
 | `bun run license:devkey` | Contributor dev keypair for local testing |
 | `bun run proof:verify -- report.json` | Verify a Proof export offline |
-| `bun run package` | Build `dist/lester-v1.0.3.zip` + `SHA256SUMS` (also generates THIRD_PARTY_LICENSES.md into the package) |
+| `bun run package` | Build `dist/lester-v1.0.4.zip` + `SHA256SUMS` |
 
 ## Licensing — honest limits
 
@@ -187,7 +187,7 @@ licensing: open an issue or a GitHub discussion.
 ## Repository layout
 
 ```
-src/app/            Console (single-page app at /) + the API (one catch-all route + handlers)
+src/app/            Console (single-page app at /) + the API (one route file + handlers.ts router)
 src/lib/            Engines, policy, redaction, Proof, knowledge, storage, licensing (merged modules)
 prisma/             schema + real migrations (never db push)
 brand/              Logo, marks, social preview
@@ -197,11 +197,16 @@ tests/              65 tests in three merged unit files + Playwright e2e (config
 docs/               guide, security model, proof & fit, api & architecture (+ 4 screenshots)
 ```
 
-The whole repository is under 100 files (93 committed files in v1.0.3) so it can be
-uploaded to GitHub in a single web drag-and-drop. Note for web uploads: entries whose
-names start with a dot (`.github/`, `.gitignore`, `.dockerignore`) are hidden by
-default in file managers and must be added explicitly — see CONTRIBUTING.md.
+The whole repository is under 100 files (88 files in v1.0.4) and is deliberately shaped
+for GitHub's web uploader: **no dotfiles** (the OS hides them from a folder drag) and
+**no `[`/`]` in any path** (the uploader rejects bracket-named route directories with
+"Something went really wrong, and we can't process that file" and silently drops every
+file queued after it — the API is served by one plain route file, `src/app/api/route.ts`,
+with `/api/*` mapped onto it by a rewrite in `next.config.ts`). Every file in the ZIP is visible and
+uploadable in a single drag. `install.sh` / `install.ps1` recreate `.gitignore` /
+`.dockerignore` locally when missing — see CONTRIBUTING.md.
 
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE). Third-party licenses are generated into the release package by `bun run licenses:report` (see `THIRD_PARTY_LICENSES.md` inside the ZIP).
+Apache-2.0 — see [LICENSE](LICENSE). The third-party license report is not committed;
+regenerate it any time with `bun run licenses:report`.

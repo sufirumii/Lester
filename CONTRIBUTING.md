@@ -41,8 +41,9 @@ llama.cpp, vLLM) via `.env` (`LESTER_ENGINE`, `LESTER_ENGINE_URL`) or leave
 
 ## Before you open a PR
 
-CI (`.github/workflows/ci.yml`) runs exactly these gates — run them locally
-first:
+There is no hosted CI in this repository (GitHub's web uploader drops dotfiles,
+so `.github/` is not shipped — see the web-upload note below). Run the gates
+locally first:
 
 ```bash
 bun run lint            # eslint .
@@ -115,13 +116,21 @@ result, and any manual verification steps.
 
 ### Uploading the repository via GitHub's web UI
 
-The repository stays under 100 files on purpose: GitHub's web uploader accepts
-at most 100 files per drag-and-drop. When re-uploading the repository this
-way, remember that entries whose names start with a dot (`.github/`,
-`.gitignore`, `.dockerignore`) are hidden by default in file managers and get
-dropped by a plain folder drag — include them explicitly (macOS: press
-Cmd+Shift+. in Finder or the file-picker dialog to reveal them; Windows:
-enable "Hidden items" in Explorer), then commit everything in one go.
+The repository is deliberately shaped for GitHub's web uploader — under 100
+files (its per-drag limit), **no dotfiles** (the OS hides them from a plain
+folder drag, so the release ZIP ships none; `install.sh` / `install.ps1`
+recreate `.gitignore` / `.dockerignore` locally when missing) and **no `[` or
+`]` in any path** (the uploader rejects bracket-named route directories such
+as `[[...route]]` / `[id]` with "Something went really wrong, and we can't
+process that file" and silently drops every file queued after it — which is
+why the API is served by one plain route file, `src/app/api/route.ts`, with
+`/api/*` mapped onto it by a rewrite in `next.config.ts`).
+
+To upload: extract the release ZIP, open the `lester-v1.0.4` folder, select
+all (Ctrl/Cmd+A) and drag the **contents** (not the folder itself) into the
+repository's "Upload files" page. Every file is visible and uploadable, so
+the count shown in the dialog must match the ZIP's file count exactly before
+you commit — if it does, nothing was dropped.
 
 ## Sign-off
 
