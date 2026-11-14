@@ -33,7 +33,7 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 echo "· Bun $(bun --version)"
 
-# 2. Dependencies (from registry.npmjs.org — see DEPLOY.md for the honest
+# 2. Dependencies (from registry.npmjs.org — see docs/guide.md for the honest
 #    network requirements list)
 echo "· Installing dependencies…"
 bun install --frozen-lockfile

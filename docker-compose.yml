@@ -12,13 +12,13 @@
 #
 # LAN exposure is opt-in: by default the port is published on 127.0.0.1 ONLY.
 # To expose on the LAN, change the ports entry to "8090:8090" and put TLS in
-# front (see DEPLOY.md). For a hard zero-egress deployment, use
+# front (see docs/guide.md). For a hard zero-egress deployment, use
 # docker-compose.isolated.yml (internal network, no outbound route at all).
 
 services:
   lester:
     build: .
-    image: lester:1.0.2
+    image: lester:1.0.3
     ports:
       - "127.0.0.1:8090:8090"   # loopback-only publish; LAN opt-in: "8090:8090"
     environment:

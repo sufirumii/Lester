@@ -340,7 +340,7 @@ function cmdExportKeys(): void {
   const bundle = JSON.stringify(
     {
       product: "Lester",
-      version: "1.0.2",
+      version: "1.0.3",
       exportedAt: new Date().toISOString(),
       note: "Guard this file. It decrypts API keys and (optionally) message content, and verifies/rotates Proof signatures.",
       dataDir: LESTER.dataDir,

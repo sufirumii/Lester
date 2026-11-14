@@ -20,11 +20,11 @@ bun install
 ```
 
 Everything works with the safe defaults (loopback-only bind, no engine
-required to boot). Optionally copy `.env.example` to `.env` to change
+required to boot). Optionally copy `env.example` to `.env` to change
 boot-time behavior — never commit `.env`:
 
 ```bash
-cp .env.example .env    # optional
+cp env.example .env     # optional
 ```
 
 ## The dev loop
@@ -109,8 +109,19 @@ pinned vendor key again. Never commit a dev key.
    that's the product's core promise. If your change needs a new outbound
    request, open an issue and discuss the design first.
 
-PRs are expected to show real command output under "How it was tested" —
-see [the PR template](.github/PULL_REQUEST_TEMPLATE.md).
+PRs are expected to show real command output under "How it was tested" — the
+commands you ran (`bun run lint`, `bunx tsc --noEmit`, `bun run test`), their
+result, and any manual verification steps.
+
+### Uploading the repository via GitHub's web UI
+
+The repository stays under 100 files on purpose: GitHub's web uploader accepts
+at most 100 files per drag-and-drop. When re-uploading the repository this
+way, remember that entries whose names start with a dot (`.github/`,
+`.gitignore`, `.dockerignore`) are hidden by default in file managers and get
+dropped by a plain folder drag — include them explicitly (macOS: press
+Cmd+Shift+. in Finder or the file-picker dialog to reveal them; Windows:
+enable "Hidden items" in Explorer), then commit everything in one go.
 
 ## Sign-off
 

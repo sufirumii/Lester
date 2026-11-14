@@ -1,6 +1,6 @@
 {
   "name": "lester",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Lester \u2014 the private AI control plane. Local models, governed routing, tamper-evident proof ledger.",
   "author": "Rumi (https://github.com/sufirumii)",

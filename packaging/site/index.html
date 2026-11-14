@@ -103,7 +103,7 @@ footer .right{margin-left:auto}
         <h1>Your AI.<br>Your hardware.<br><span class="accent">Your proof.</span></h1>
         <p class="sub">One install gives your company a working, governed, auditable local AI system — with policy routing, PII redaction, evaluation on your own prompts, and a tamper-evident ledger of where every byte went.</p>
         <div class="cta">
-          <a class="btn primary" href="https://github.com/sufirumii/lester/releases" download>Get v1.0.2 (GitHub releases)</a>
+          <a class="btn primary" href="https://github.com/sufirumii/lester/releases" download>Get v1.0.3 (GitHub releases)</a>
           <a class="btn ghost" href="#" data-jump="docs">Read the quickstart</a>
         </div>
       </div>
@@ -138,7 +138,7 @@ footer .right{margin-left:auto}
       <div class="card"><h3>Policy router</h3><p>Per-workspace rules decide whether a request stays local, may fall back to a cloud API, or is blocked. PII and secret detection redacts before anything leaves. Cloud fallback is off by default.</p></div>
       <div class="card"><h3>Hardware-aware setup</h3><p>First run scans CPU, RAM, GPU and disk, then recommends quantized models that actually fit. No manual tuning.</p></div>
       <div class="card"><h3>Always-on durability</h3><p>Write-ahead logging, atomic writes, scheduled checksummed backups, crash recovery, optional encryption at rest, one-click export and restore.</p></div>
-      <div class="card"><h3>One command, no external services</h3><p>Single installer or one <span class="mono">docker compose up</span>. No external databases, no cloud accounts. Runtime is fully offline; installing needs the package registry (and Docker images) — DEPLOY.md lists every network touch honestly.</p></div>
+      <div class="card"><h3>One command, no external services</h3><p>Single installer or one <span class="mono">docker compose up</span>. No external databases, no cloud accounts. Runtime is fully offline; installing needs the package registry (and Docker images) — docs/guide.md lists every network touch honestly.</p></div>
     </div>
   </section>
 
@@ -196,7 +196,7 @@ footer .right{margin-left:auto}
   <section class="tab" id="docs" role="tabpanel" aria-label="Docs">
     <h2>Quickstart</h2>
     <p class="lead">The full documentation set ships inside the package: README and the docs/ guides (guide, security model, proof &amp; fit, api &amp; architecture).</p>
-<pre>unzip lester-v1.0.2.zip &amp;&amp; cd lester-v1.0.2
+<pre>unzip lester-v1.0.3.zip &amp;&amp; cd lester-v1.0.3
 docker compose up -d          # or: bash install.sh
 open http://localhost:8090    # first-run wizard: hardware scan → admin → model
 
@@ -225,7 +225,7 @@ Authorization: Bearer lst_…   # create in Settings → API tokens (stored hash
 <footer class="wrap">
   <span>Lester — private AI control plane</span>
   <span>SHA-256 checksums in <span class="mono">SHA256SUMS</span></span>
-  <span class="right">v1.0.2 · Apache-2.0 · Rumi</span>
+  <span class="right">v1.0.3 · Apache-2.0 · Rumi</span>
 </footer>
 
 <script>

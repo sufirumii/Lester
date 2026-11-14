@@ -1,5 +1,5 @@
 # Lester — production image (Bun runtime, digest-pinned bases, non-root).
-# Build: docker build -t lester:1.0.2 .
+# Build: docker build -t lester:1.0.3 .
 
 # oven/bun:1.3.14-slim, pinned by digest (S7)
 ARG BUN_IMAGE=oven/bun:1.3.14-slim@sha256:d56a2534ffd262e92c12fd3249d3924d296d97086da773f821d7d0477435ea04

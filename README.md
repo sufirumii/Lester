@@ -6,7 +6,6 @@
 
 **Your AI. Your hardware. Your proof.**
 
-[![CI](https://github.com/sufirumii/lester/actions/workflows/ci.yml/badge.svg)](https://github.com/sufirumii/lester/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-0E6B57.svg)](LICENSE)
 
 Lester is a **private AI control plane** that runs on your own hardware. One install gives you a
@@ -32,7 +31,7 @@ machine?". Lester is the layer between your users and the engine that provides a
 ## 60-second quick start (Docker)
 
 ```bash
-unzip lester-v1.0.2.zip && cd lester-v1.0.2
+unzip lester-v1.0.3.zip && cd lester-v1.0.3
 docker compose up -d
 # open http://localhost:8090
 ```
@@ -162,7 +161,7 @@ Details, role matrix and known gaps: [docs/security-model.md](docs/security-mode
 | `bun run license:issue -- --key <vendor.pem> --node <id>` | Issue a team license (vendor key only) |
 | `bun run license:devkey` | Contributor dev keypair for local testing |
 | `bun run proof:verify -- report.json` | Verify a Proof export offline |
-| `bun run package` | Build `dist/lester-v1.0.2.zip` + `SHA256SUMS` (also generates THIRD_PARTY_LICENSES.md into the package) |
+| `bun run package` | Build `dist/lester-v1.0.3.zip` + `SHA256SUMS` (also generates THIRD_PARTY_LICENSES.md into the package) |
 
 ## Licensing — honest limits
 
@@ -198,8 +197,10 @@ tests/              65 tests in three merged unit files + Playwright e2e (config
 docs/               guide, security model, proof & fit, api & architecture (+ 4 screenshots)
 ```
 
-The whole repository is under 100 files (95 committed files in v1.0.2) so it can be
-uploaded to GitHub in a single web drag-and-drop.
+The whole repository is under 100 files (93 committed files in v1.0.3) so it can be
+uploaded to GitHub in a single web drag-and-drop. Note for web uploads: entries whose
+names start with a dot (`.github/`, `.gitignore`, `.dockerignore`) are hidden by
+default in file managers and must be added explicitly — see CONTRIBUTING.md.
 
 ## License
 

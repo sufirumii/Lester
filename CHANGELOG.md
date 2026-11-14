@@ -5,6 +5,38 @@ All notable changes to Lester are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] — 2026-11-14
+
+GitHub web-upload reliability and documentation-link fixes; no functional changes.
+
+### Fixed
+
+- **README CI badge never rendered** after a GitHub web upload: the badge pointed
+  at the CI workflow, but GitHub's web uploader drops dotfiles (`.github/` never
+  reached the repository), leaving a broken badge image. The dynamic badge is
+  removed; CI status is visible natively in the repository's Actions tab (and
+  sidebar) once the workflows are uploaded.
+- Stale documentation links left over from the v1.0.2 consolidation:
+  `DEPLOY.md` → `docs/guide.md` (docker-compose files, SECURITY.md, install.sh,
+  marketing site), `docs/SECURITY.md` → `docs/security-model.md`, and a
+  `cd lester-v1.0.1` typo in docs/guide.md.
+- SECURITY.md and CONTRIBUTING.md no longer link to repository files that were
+  removed (see below); the guidance now lives inline in those documents.
+
+### Changed
+
+- **93 committed files (down from 95)** — the GitHub issue and PR templates were
+  removed so the repository stays comfortably below GitHub's 100-file web-upload
+  limit. Tests, docs, commands and behavior are unchanged.
+- `.env.example` renamed to `env.example`: files starting with a dot are hidden
+  by default in file managers and were being dropped by the web upload. Same
+  contents, same copy-to-`.env` workflow.
+- The release package no longer contains `db/.gitkeep` (the data directory is
+  created at runtime); `THIRD_PARTY_LICENSES.md` and `SHA256SUMS` are still
+  generated into the package at build time.
+
+[1.0.3]: https://github.com/sufirumii/lester/releases/tag/v1.0.3
+
 ## [1.0.2] — 2026-11-14
 
 Repository consolidated into fewer files; no functional changes.

@@ -5,7 +5,7 @@
 # The lester service joins an internal-only network: no outbound route exists
 # at the network layer, so even a compromised app cannot reach the internet.
 # Consequences (honest limits): model downloads and cloud fallback are
-# impossible; bring models in via `docker cp` or a preloaded volume (DEPLOY.md).
+# impossible; bring models in via `docker cp` or a preloaded volume (docs/guide.md).
  services:
    lester:
      networks:

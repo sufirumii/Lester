@@ -22,8 +22,9 @@ The preferred channel is GitHub Security Advisories:
 Please allow time for a fix and a release before public disclosure.
 Coordinated disclosure is credited in the release notes if you wish.
 
-For non-security bugs, use the issue tracker and the bug-report template —
-see [`.github/ISSUE_TEMPLATE/bug_report.md`](.github/ISSUE_TEMPLATE/bug_report.md).
+For non-security bugs, use the issue tracker and include: the Lester version
+(shown on the Health screen), exact steps to reproduce, what you expected, and
+what happened instead.
 
 ## Supported versions
 
@@ -67,5 +68,5 @@ and pinpointed; backups are checksummed and restore is refuse-on-mismatch).
 Cloud fallback is off by default and needs two explicit switches; telemetry is
 absent, not disabled. The full threat model — secure defaults, data
 protection, integrity, egress honesty and honest scope limits — lives in
-[docs/SECURITY.md](docs/SECURITY.md); operator hardening guidance is in
-[DEPLOY.md](DEPLOY.md).
+[docs/security-model.md](docs/security-model.md); operator hardening and
+deployment guidance is in [docs/guide.md](docs/guide.md).

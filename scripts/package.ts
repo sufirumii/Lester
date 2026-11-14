@@ -1,5 +1,5 @@
 /**
- * Build the deliverable: lester-v1.0.2.zip (+ SHA256SUMS inside, zip hash outside).
+ * Build the deliverable: lester-v1.0.3.zip (+ SHA256SUMS inside, zip hash outside).
  * Run: bun run package
  *
  * The package is the whole project (source, migrations, brand, marketing site,
@@ -16,13 +16,13 @@ import path from "node:path";
 import { buildLicenseReport } from "./cli";
 
 const ROOT = path.join(import.meta.dir, "..");
-const NAME = "lester-v1.0.2";
+const NAME = "lester-v1.0.3";
 const STAGE = path.join(ROOT, "staging", NAME);
 const OUT = path.join(ROOT, "dist", `${NAME}.zip`);
 
 const EXCLUDE_DIRS = new Set([
   "node_modules", ".next", ".git", "staging", "agent-ctx", "dist",
-  "db", // runtime data (db/.gitkeep is re-created below)
+  "db", // runtime data — the app creates this directory on first boot
   // builder-environment scaffolds (not part of the product):
   ".zscripts", "skills", "mini-services", "examples", "download", "upload",
   "test-output", "playwright-report", "test-results",
@@ -74,8 +74,6 @@ function fmtSize(bytes: number): string {
 rmSync(path.join(ROOT, "staging"), { recursive: true, force: true });
 mkdirSync(STAGE, { recursive: true });
 copyTree(ROOT, STAGE, "");
-mkdirSync(path.join(STAGE, "db"), { recursive: true });
-writeFileSync(path.join(STAGE, "db", ".gitkeep"), "");
 
 // ── 2. Generated-in metadata (not stored in the repo) ────────────────────────
 
@@ -88,7 +86,7 @@ const files = listFiles(STAGE).sort();
 const sums = files.map((f) => `${sha256File(path.join(STAGE, f))}  ${f}`).join("\n");
 writeFileSync(path.join(STAGE, "SHA256SUMS"), `${sums}\n`);
 
-// ── 4. Zip (wrapped in a top-level lester-v1.0.2/ folder) ───────────────────
+// ── 4. Zip (wrapped in a top-level lester-v1.0.3/ folder) ───────────────────
 
 const zip = new AdmZip();
 zip.addLocalFolder(STAGE, NAME);
