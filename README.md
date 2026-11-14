@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/logo-horizontal.svg" alt="Lester" width="206">
+</p>
+
 # Lester
 
 **Your AI. Your hardware. Your proof.**
