@@ -1,0 +1,85 @@
+# Lester — one-command on-premises deployment (B3: zero edits for both modes).
+#
+#   docker compose up -d                          → Lester on http://localhost:8090
+#   docker compose --profile with-ollama up -d    → + a local Ollama engine
+#                                                   (sidecar; a small default
+#                                                   model is pulled once)
+#
+# Zero manual edits: Lester auto-detects the engine at boot — the Ollama
+# sidecar (http://ollama:11434), Ollama on the host
+# (http://host.docker.internal:11434 — mapped on Linux via extra_hosts), or a
+# local engine port. Override with LESTER_ENGINE / LESTER_ENGINE_URL below.
+#
+# LAN exposure is opt-in: by default the port is published on 127.0.0.1 ONLY.
+# To expose on the LAN, change the ports entry to "8090:8090" and put TLS in
+# front (see DEPLOY.md). For a hard zero-egress deployment, use
+# docker-compose.isolated.yml (internal network, no outbound route at all).
+
+services:
+  lester:
+    build: .
+    image: lester:1.0.2
+    ports:
+      - "127.0.0.1:8090:8090"   # loopback-only publish; LAN opt-in: "8090:8090"
+    environment:
+      - LESTER_DATA_DIR=/app/data
+      - DATABASE_URL=file:/app/data/lester.db?connection_limit=1
+      # inside-container bind must be 0.0.0.0 for the publish filter to work;
+      # actual exposure is controlled by the host-side publish address above.
+      - LESTER_BIND=0.0.0.0
+      - LESTER_ENGINE=auto
+      # - LESTER_TRUST_PROXY=true   # behind a TLS-terminating proxy
+    extra_hosts:
+      # reach Ollama on the host from Linux containers too
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - lester-data:/app/data
+    restart: unless-stopped
+    # S7 — container hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  ollama:
+    image: ollama/ollama:0.40.16@sha256:910d0d8107b538fb0894e63163eb195de0cc7aefcbc666dc62d3b18f71124592
+    profiles: ["with-ollama"]
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list > /dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    # Uncomment to expose Ollama's own API on the host (also loopback-only):
+    # ports:
+    #   - "127.0.0.1:11434:11434"
+
+  # One-shot: pull a small default model on first run of the with-ollama
+  # profile so a chat works immediately (qwen2.5:1.5b-instruct-q4_K_M, ~1 GB).
+  ollama-init:
+    image: ollama/ollama:0.40.16@sha256:910d0d8107b538fb0894e63163eb195de0cc7aefcbc666dc62d3b18f71124592
+    profiles: ["with-ollama"]
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - ollama-models:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "echo '[ollama-init] pulling qwen2.5:1.5b-instruct-q4_K_M (one time, ~1 GB)…';
+       until ollama pull qwen2.5:1.5b-instruct-q4_K_M; do echo '[ollama-init] waiting for ollama…'; sleep 3; done;
+       echo '[ollama-init] model ready.'"
+    restart: "no"
+
+volumes:
+  lester-data:
+  ollama-models:

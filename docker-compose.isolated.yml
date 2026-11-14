@@ -1,0 +1,18 @@
+# Hard zero-egress override (P3). Use together with the base file:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.isolated.yml up -d
+#
+# The lester service joins an internal-only network: no outbound route exists
+# at the network layer, so even a compromised app cannot reach the internet.
+# Consequences (honest limits): model downloads and cloud fallback are
+# impossible; bring models in via `docker cp` or a preloaded volume (DEPLOY.md).
+ services:
+   lester:
+     networks:
+       - lester-internal
+     # remove extra_hosts (host.docker.internal) — internal networks have no
+     # route to the host either; engines must run as compose sidecars.
+
+ networks:
+   lester-internal:
+     internal: true

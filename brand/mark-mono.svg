@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lester mark, monochrome knockout">
+  <!-- Monochrome: single color, L is a true knockout so any background shows through -->
+  <path fill-rule="evenodd" d="M6 19 a13 13 0 0 1 13-13 h26 a13 13 0 0 1 13 13 v26 a13 13 0 0 1-13 13 h-26 a13 13 0 0 1-13-13 z M22 19 H33 V34 H48 V45 H22 Z" fill="#111111"/>
+  <rect x="36" y="21.5" width="9" height="9" rx="2.2" fill="#111111"/>
+</svg>

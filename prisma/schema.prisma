@@ -1,0 +1,252 @@
+// Lester — private AI control plane
+// SQLite storage with WAL + synchronous writes for durability (configured at boot).
+// Schema changes go through prisma/migrations — never `db push` (data must survive upgrades).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Identity ────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  displayName  String
+  passwordHash String // scrypt: salt$hash
+  role         String   @default("MEMBER") // ADMIN | MEMBER | AUDITOR
+  disabled     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sessions     Session[]
+  apiTokens    ApiToken[]
+}
+
+model Session {
+  id         String   @id // sha256(token)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+}
+
+// Personal API tokens (OpenAI-compatible endpoint). Only the SHA-256 hash is
+// stored; the raw token is shown exactly once at creation.
+model ApiToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String // user-chosen label, e.g. "laptop-cli"
+  tokenHash  String    @unique // sha256(raw token)
+  prefix     String // first chars of the raw token, e.g. "lst_aB3d…" for display
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+}
+
+// Persisted login throttling (username + IP keyed, progressive delays).
+model LoginAttempt {
+  key          String   @id // `${username}|${ip}`
+  failures     Int      @default(0)
+  firstFailedAt DateTime @default(now())
+  lastFailedAt DateTime @default(now())
+}
+
+// ─── Workspaces & policy ─────────────────────────────────────────────────────
+
+model Workspace {
+  id            String        @id @default(cuid())
+  name          String
+  description   String        @default("")
+  defaultModel  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  policy        Policy?       @relation(fields: [policyId], references: [id])
+  policyId      String?       @unique
+  documents     Document[]
+  conversations Conversation[]
+}
+
+model Policy {
+  id            String    @id @default(cuid())
+  workspaceId   String?   @unique
+  workspace     Workspace? @relation
+  mode          String   @default("LOCAL_ONLY") // LOCAL_ONLY | CLOUD_FALLBACK | BLOCK_ALL
+  redactPii     Boolean   @default(true)
+  blockKeywords String   @default("") // comma-separated, case-insensitive
+  allowedModels String   @default("") // comma-separated modelKeys; empty = all approved
+  maxTokens     Int      @default(2048)
+  logContent    Boolean   @default(false) // audit-log prompt content (admin opt-in)
+  updatedAt     DateTime @updatedAt
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model ModelEntry {
+  id          String    @id @default(cuid())
+  key         String    @unique // e.g. "local:qwen2.5:1.5b", "cloud:<providerId>:<modelId>"
+  name        String
+  family      String    @default("")
+  paramsB     Float     @default(0) // billions of parameters (0 = unknown)
+  quant       String    @default("") // e.g. Q4_K_M
+  sizeMb      Int       @default(0)
+  ramReqMb    Int       @default(0)
+  provider    String // LOCAL_ENGINE | CLOUD
+  endpoint    String    @default("")
+  installed   Boolean   @default(false)
+  approved    Boolean   @default(true)
+  enabled     Boolean   @default(true)
+  installedAt DateTime?
+  meta        String    @default("{}")
+}
+
+// ─── Conversations ───────────────────────────────────────────────────────────
+
+model Conversation {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  title       String   @default("New conversation")
+  modelKey    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  messages    Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String?
+  role           String // user | assistant
+  content        String // plaintext, or base64 ciphertext when encrypted=true
+  encrypted      Boolean      @default(false)
+  modelKey       String?
+  provider       String?
+  latencyMs      Int?
+  tokensIn       Int?
+  tokensOut      Int?
+  redactions     Int          @default(0)
+  citations      String? // JSON [{doc, chunk, snippet}]
+  blocked        Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+// ─── Knowledge (on-device retrieval) ─────────────────────────────────────────
+
+model Document {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  mime        String
+  sizeBytes   Int
+  chunkCount  Int
+  sha256      String
+  createdAt   DateTime @default(now())
+  chunks      Chunk[]
+}
+
+model Chunk {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  idx        Int
+  content    String
+}
+
+// ─── Proof ledger (append-only, hash-chained) ────────────────────────────────
+
+model ProofEntry {
+  seq           Int      @id @default(autoincrement())
+  ts            DateTime @default(now())
+  userId        String?
+  username      String?
+  workspaceId   String?
+  workspaceName String?
+  action        String // chat.request | chat.response | knowledge.upload | fit.run | model.install | policy.update | auth.login | auth.fail | backup.create | backup.restore | license.activate | settings.update | user.create
+  status        String // ok | blocked | redacted | error
+  modelKey      String?
+  provider      String? // local-engine | cloud
+  providerLabel String?
+  endpointHost  String?
+  endpointIp    String?
+  egress        String? // loopback | private | external | none
+  latencyMs     Int?
+  tokensIn      Int?
+  tokensOut     Int?
+  redactions    Int?
+  detail        String   @default("{}") // JSON, no prompt content
+  content       String? // only when admin enabled content logging
+  prevHash      String?
+  selfHash      String?
+  hashVersion   String   @default("v2") // v1 (≤1.0.0, seq+ts excluded) | v2 (seq+ts included)
+}
+
+// Signed periodic checkpoints of the chain head — exportable/anchorable
+// outside the host, so a whole-chain rewrite by someone with disk access is
+// detectable (see SECURITY.md for the honest limits).
+model ProofCheckpoint {
+  id         String   @id @default(cuid())
+  seq        Int // head seq at checkpoint time
+  headHash   String
+  ts         DateTime @default(now())
+  signature  String // Ed25519 over "lester-checkpoint:{nodeId}:{seq}:{headHash}:{ts}"
+  keyId      String // which signing key produced the signature
+}
+
+// ─── Fit evaluation ──────────────────────────────────────────────────────────
+
+model FitRun {
+  id         String   @id @default(cuid())
+  userId     String
+  status     String   @default("queued") // queued | running | done | error | cancelled
+  prompts    String // JSON string[]
+  candidates String // JSON modelKeys[]
+  config     String // JSON {cloudBaseline, priceIn, priceOut, volume, hardwareCost}
+  results    String   @default("[]") // JSON per-candidate aggregate
+  samples    String   @default("[]") // JSON per-prompt rows
+  summary    String   @default("{}") // JSON cost-saved etc.
+  progress   Int      @default(0)
+  total      Int      @default(0)
+  error      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ─── Settings, backups, license ──────────────────────────────────────────────
+
+model Setting {
+  key   String @id
+  value String // JSON
+}
+
+model Backup {
+  id        String   @id @default(cuid())
+  path      String
+  sizeBytes Int
+  sha256    String
+  kind      String   @default("manual") // manual | auto | pre-restore | pre-upgrade
+  entries   Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model License {
+  id          String    @id @default(cuid())
+  key         String
+  tier        String // free | team
+  customer    String
+  nodes       Int       @default(1)
+  userLimit   Int       @default(25)
+  nodeId      String
+  issuedAt    DateTime
+  expiresAt   DateTime?
+  valid       Boolean   @default(false)
+  activatedAt DateTime  @default(now())
+}
