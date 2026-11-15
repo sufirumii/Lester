@@ -1,4 +1,4 @@
-# Lester uninstaller — Windows (PowerShell). NEVER deletes user data (db\,
+# Lester uninstaller - Windows (PowerShell). NEVER deletes user data (db\,
 # backups, keys, .env) without an explicit confirmation.
 $ErrorActionPreference = "Continue"
 Set-Location $PSScriptRoot
@@ -11,7 +11,7 @@ Write-Host ". Launcher and shortcut removed."
 
 $reply = Read-Host "Delete all Lester data (database, backups, keys) in .\db? [y/N]"
 if ($reply -match "^[Yy]$") {
-  Remove-Item "db" -Recurse -Force
+  if (Test-Path "db") { Remove-Item "db" -Recurse -Force }
   Write-Host ". Data deleted."
 } else {
   Write-Host ". Data kept in $PWD\db"

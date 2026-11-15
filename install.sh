@@ -121,7 +121,7 @@ chmod +x "$BIN_DIR/lester"
 echo "· Launcher installed: $BIN_DIR/lester"
 
 # 5. Desktop entry (Linux)
-if command -v desktop-file-install >/dev/null 2>&1 || [ -d "$HOME/.local/share/applications" ]; then
+if [ "$(uname -s)" = "Linux" ] && { command -v desktop-file-install >/dev/null 2>&1 || [ -d "$HOME/.local/share/applications" ]; }; then
   mkdir -p "$HOME/.local/share/applications"
   cat > "$HOME/.local/share/applications/lester.desktop" <<EOF
 [Desktop Entry]
@@ -166,6 +166,22 @@ fi
 
 echo
 echo "✔ Installed. Start with:"
-echo "    lester            (or: bun run start:prod)"
+echo "    bun run start:prod        (run from this folder: $(pwd))"
+case ":$PATH:" in
+  *":$BIN_DIR:"*) echo "    lester                    (launcher, works from anywhere)" ;;
+  *) echo "    $BIN_DIR/lester   (launcher; $BIN_DIR is not on your PATH)" ;;
+esac
 echo "  then open http://localhost:8090"
+echo "  Your data (database, backups, keys) lives in: $(pwd)/db"
+
+# Friendly, non-fatal hint: Lester needs a local engine to answer prompts.
+if ! curl -fsS --max-time 2 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+  echo
+  echo "· No Ollama detected on 127.0.0.1:11434. Lester needs a local engine to chat:"
+  echo "    macOS:  brew install ollama && brew services start ollama"
+  echo "    Linux:  https://ollama.com/download"
+  echo "    then:   ollama pull llama3.2:1b"
+  echo "  (LM Studio, llama.cpp and vLLM also work — see docs/guide.md.)"
+fi
+echo
 echo "  Uninstall anytime: bash uninstall.sh"

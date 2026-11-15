@@ -5,6 +5,28 @@ All notable changes to Lester are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Native install failed on a fresh clone** (`bash install.sh` stopped at the
+  migration step with Prisma `P1012: Environment variable not found:
+  DATABASE_URL`). The documented default for `DATABASE_URL` existed only in
+  `env.example`/docs, never in code, so anything without a `.env` file broke.
+  The default (`<project>/db/lester.db`) is now applied in code, and the URL
+  is always normalised to an absolute path (`src/lib/dburl.ts`,
+  `scripts/_defaults.ts`). Docker is unchanged — it sets both variables itself.
+- **Database/keys/backups could end up in different folders.** Prisma resolves
+  a relative `file:` URL against `prisma/`, while Lester's own helpers resolved
+  it against the working directory (and the standalone server runs from
+  `.next/standalone`). All entry points now share one absolute location.
+- `install.ps1` now stops with a clear message if `bun install` or the
+  migration fails (native-command failures were previously ignored), and is
+  pure ASCII so Windows PowerShell 5.1 reads it correctly.
+- `uninstall.sh` no longer errors under `set -u` when run without a terminal.
+- `install.sh` only installs the Linux desktop entry on Linux, tells you where
+  your data lives, and prints a hint when no Ollama is running.
+
 ## [1.0.4] — 2026-11-14
 
 GitHub web-upload reliability, round two: the root cause of the missing files

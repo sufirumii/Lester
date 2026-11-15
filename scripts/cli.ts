@@ -25,6 +25,7 @@
  * rotate-proof-key,migrate,gen-icons,run-tests}.ts and vendor-offline.sh —
  * logic unchanged; argument parsing reads ARGS (everything after the command).
  */
+import "./_defaults"; // DATABASE_URL / LESTER_DATA_DIR defaults — must run before any src/lib import
 import { createCipheriv, createHash, createPrivateKey, createPublicKey, generateKeyPairSync, randomBytes, scryptSync, sign as edSign, verify as edVerify } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import { appendFileSync, chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";

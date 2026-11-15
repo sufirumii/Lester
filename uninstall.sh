@@ -19,6 +19,7 @@ rm -f "$HOME/.local/bin/lester" "$HOME/.local/share/applications/lester.desktop"
 echo "· Launcher and desktop entry removed."
 
 # data (explicit confirmation, default NO)
+reply=""
 read -r -p "Delete all Lester data (database, backups, keys) in ./db? [y/N] " reply || true
 if [[ "$reply" =~ ^[Yy]$ ]]; then
   rm -rf db

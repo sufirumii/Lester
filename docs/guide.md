@@ -91,7 +91,7 @@ defaults and infrastructure settings. Set them in `.env` (native) or the compose
 
 | Variable | Default | What it does |
 |---|---|---|
-| `DATABASE_URL` | `file:./db/lester.db?connection_limit=1` | SQLite location. Keep `connection_limit=1` — it makes the durability pragmas apply to every query. |
+| `DATABASE_URL` | `file:<project>/db/lester.db?connection_limit=1` | SQLite location (unset = this default; a relative path is resolved against the project folder). Keep `connection_limit=1` — it makes the durability pragmas apply to every query. |
 | `LESTER_DATA_DIR` | `<project>/db` | Where the database, backups and keys live (Docker: `/app/data`). |
 | `LESTER_BACKUP_DIR` | `DATA/backups` | Backup destination. Point at another volume so a dead disk cannot take the only copies (the Console warns when backups share the DB's volume). |
 

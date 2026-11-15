@@ -10,10 +10,15 @@
 import { PrismaClient } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { applyDatabaseDefaults } from "./dburl";
 
 
 // ═══ Prisma client + durability ══════════════════════════════════════════════════
 // merged from src/lib/db.ts
+
+// Safety net for `bun run dev` and ad-hoc imports: Prisma has no DATABASE_URL
+// default, so supply the documented one if nothing set it (never overrides).
+if (!process.env.DATABASE_URL) applyDatabaseDefaults();
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

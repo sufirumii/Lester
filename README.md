@@ -48,6 +48,11 @@ documented LAN opt-in.
 
 > No Docker? `bash install.sh` (Linux/macOS) or `.\install.ps1` (Windows), then
 > `bun run start:prod` → http://localhost:8090. Details in [docs/guide.md](docs/guide.md).
+>
+> Native installs need a local engine to chat with — e.g. [Ollama](https://ollama.com)
+> (`brew install ollama && brew services start ollama` on macOS), then
+> `ollama pull llama3.2:1b`. Your data lives in `./db` inside the project folder;
+> `bash uninstall.sh` removes the launcher and offers to delete it.
 
 ## First run
 

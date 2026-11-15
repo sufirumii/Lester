@@ -8,6 +8,7 @@
  *   4. shuts down gracefully on SIGINT/SIGTERM: stops accepting connections,
  *      lets in-flight writes finish, WAL-checkpoints and closes the database.
  */
+import "./_defaults"; // DATABASE_URL / LESTER_DATA_DIR defaults — must run before any src/lib import
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
